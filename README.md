@@ -51,30 +51,35 @@ drag lists to scroll, and tap the ▶ on an album row to play it without opening
 
 ## Installing
 
-1. Copy `sonnis.3dsx` to `sdmc:/3ds/sonnis/sonnis.3dsx` on your SD card
-   (or install over Wi-Fi, see below).
-2. Launch the **Homebrew Launcher** and pick **Sonnis**.
-3. Make sure the 2DS is connected to the **same Wi-Fi network** as your Sonos
+**Before you start**
+
+- **Your 2DS/3DS must be able to run homebrew** (Luma3DS custom firmware and the
+  Homebrew Launcher). If it can't yet, follow the community guide at
+  [3ds.hacks.guide](https://3ds.hacks.guide). Sonnis doesn't change your system;
+  it's a regular homebrew app you can delete at any time.
+- **Tested on a Nintendo 2DS.** It should work on any 3DS-family console, but
+  only the 2DS has been tested so far. Reports from other models are welcome.
+- **Local network only.** No Sonos account, no cloud and no phone needed. Your
+  speakers' setup isn't changed. That also means no Spotify/Apple Music
+  browsing; see [What needs the cloud](#what-needs-the-cloud-and-why-its-marked-in-the-app)
+  for the Sonos Favorites workaround.
+- **On first launch** Sonnis searches your Wi-Fi for speakers, which usually
+  takes a few seconds. If none are found, see
+  [Network setup & troubleshooting](#network-setup--troubleshooting).
+
+Sonnis is a hobby project and is not affiliated with or endorsed by Sonos, Inc.
+
+1. Download `sonnis-<version>.zip` from the
+   [latest release](https://github.com/Basis4ajake/sonnis/releases/latest).
+2. Extract it to the **root of your SD card**. It puts the app at
+   `sdmc:/3ds/sonnis/sonnis.3dsx`. To update, extract a newer zip over it;
+   your settings are kept.
+3. Launch the **Homebrew Launcher** and pick **Sonnis**.
+4. Make sure the 2DS is connected to the **same Wi-Fi network** as your Sonos
    system (System Settings → Internet Settings).
 
 Settings are saved to `sdmc:/3ds/sonnis/settings.ini` (plain text, safe to edit
 on a PC) and history to `sdmc:/3ds/sonnis/history.txt`.
-
-### Testing and installing over Wi-Fi
-
-- **Try a build without installing it:** open the Homebrew Launcher, press **Y**
-  for the netloader, then run `3dslink -a <2ds-ip> sonnis.3dsx`. The build
-  only runs until you exit.
-- **Keep a build (dev builds only):** a dev build (`make DEV=1`, see
-  [Building](#building)) accepts uploads while **START → Network log** is open:
-
-  ```sh
-  curl --limit-rate 60k -T sonnis-dev.3dsx http://<2ds-ip>:8080/install
-  curl --limit-rate 60k -T eleven.wav      http://<2ds-ip>:8080/sounds/eleven.wav
-  ```
-
-  Keep the rate limit: at full Wi-Fi speed the 2DS's SD card writes fall
-  behind and the upload stalls.
 
 ## Building
 
@@ -99,6 +104,22 @@ while that screen is open. Release builds leave them out and only serve the
 read-only log. Use dev builds on your own device only. If you install a release
 build, uploads stop working until you load a dev build again with `3dslink` or
 the SD card.
+
+### Testing builds over Wi-Fi
+
+- **Try a build without installing it:** open the Homebrew Launcher, press **Y**
+  for the netloader, then run `3dslink -a <2ds-ip> sonnis.3dsx`. The build
+  only runs until you exit.
+- **Keep a build (dev builds only):** a dev build (`make DEV=1`, see
+  [Building](#building)) accepts uploads while **START → Network log** is open:
+
+  ```sh
+  curl --limit-rate 60k -T sonnis-dev.3dsx http://<2ds-ip>:8080/install
+  curl --limit-rate 60k -T eleven.wav      http://<2ds-ip>:8080/sounds/eleven.wav
+  ```
+
+  Keep the rate limit: at full Wi-Fi speed the 2DS's SD card writes fall
+  behind and the upload stalls.
 
 ## Personalizing
 
