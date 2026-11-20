@@ -699,11 +699,28 @@ static void draw_bear(float x, float ground, float step, u32 c)
 	float arm = sinf(step * 2) * 3;                      // arms up, waving
 	rect(x - 9, g - 24 + arm, 3, 9, c);
 	rect(x + 6, g - 24 - arm, 3, 9, c);
-	C2D_DrawCircleSolid(x, g - 25, Z, 5.5f, c);          // head
 	C2D_DrawCircleSolid(x - 4, g - 30, Z, 2.2f, c);      // ears
 	C2D_DrawCircleSolid(x + 4, g - 30, Z, 2.2f, c);
-	C2D_DrawCircleSolid(x + 2, g - 23.5f, Z, 2.2f, rgba(255, 255, 255, 170)); // snout
-	C2D_DrawCircleSolid(x - 2, g - 27, Z, 0.9f, rgba(20, 10, 30, 255));      // eye
+	u32 shade = rgba(20, 10, 30, 90);                    // darkens any body colour
+	C2D_DrawCircleSolid(x - 4, g - 30, Z, 1.1f, shade);  // inner ears
+	C2D_DrawCircleSolid(x + 4, g - 30, Z, 1.1f, shade);
+	C2D_DrawCircleSolid(x, g - 25, Z, 5.5f, c);          // head
+
+	// Front-facing face, ~11 px wide: two eyes, centred muzzle + nose, cheeks.
+	u32 ink = rgba(20, 10, 30, 255);
+	C2D_DrawCircleSolid(x - 3.4f, g - 23.6f, Z, 1.1f, rgba(255, 120, 160, 110)); // cheeks
+	C2D_DrawCircleSolid(x + 3.4f, g - 23.6f, Z, 1.1f, rgba(255, 120, 160, 110));
+	C2D_DrawCircleSolid(x, g - 22.8f, Z, 2.6f, rgba(255, 255, 255, 200));       // muzzle
+	C2D_DrawCircleSolid(x, g - 23.8f, Z, 1.0f, ink);                            // nose
+	// Brief blink every few seconds, timed off the dance step: each bear blinks at
+	// its own moment, and more often while the music plays (faster step).
+	if (fmodf(step * 0.37f + 100.0f, 6.0f) < 0.18f) {
+		rect(x - 3.1f, g - 26.8f, 1.8f, 0.7f, ink);      // eyes closed
+		rect(x + 1.3f, g - 26.8f, 1.8f, 0.7f, ink);
+	} else {
+		C2D_DrawCircleSolid(x - 2.2f, g - 26.6f, Z, 0.9f, ink); // eyes
+		C2D_DrawCircleSolid(x + 2.2f, g - 26.6f, Z, 0.9f, ink);
+	}
 }
 
 // A parade along the bottom of the top screen. Marches while music plays,
