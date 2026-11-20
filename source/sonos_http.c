@@ -179,7 +179,9 @@ static long dechunk(char *body, size_t len)
 		unsigned long n = strtoul(r, NULL, 16);
 		r = eol + 2;
 		if (n == 0) break;
-		if (r + n > end) n = (unsigned long)(end - r); // tolerate truncation
+		// Compare lengths, not pointers: a huge (hostile) chunk size would wrap
+		// r + n past the 32-bit address space and slip under the check.
+		if (n > (unsigned long)(end - r)) n = (unsigned long)(end - r); // tolerate truncation
 		memmove(w, r, n);
 		w += n; r += n;
 		if (r + 2 <= end && r[0] == '\r') r += 2;

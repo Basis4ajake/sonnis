@@ -112,9 +112,10 @@ the SD card.
 
 ### Testing builds over Wi-Fi
 
-- **Try a build without installing it:** open the Homebrew Launcher, press **Y**
-  for the netloader, then run `3dslink -a <2ds-ip> sonnis.3dsx`. The build
-  only runs until you exit.
+- **Try a build quickly:** open the Homebrew Launcher, press **Y** for the
+  netloader, then run `3dslink -a <2ds-ip> sonnis-dev.3dsx`. Note that the
+  netloader also saves a copy to `sdmc:/3ds/<file name>`, which shows up as an
+  extra launcher entry; delete it when you're done testing.
 - **Keep a build (dev builds only):** a dev build (`make DEV=1`, see
   [Building](#building)) accepts uploads while **START → Network log** is open:
 

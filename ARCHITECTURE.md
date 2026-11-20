@@ -50,7 +50,7 @@ rule:
 | `controller.[ch]` | **The worker:** command queue, polling, reconnects, shared state |
 | `diag.[ch]` | On-device network diagnostics (Settings → Network diagnostics) |
 | `netlog.[ch]` | Ring buffer of network events, mirrored to `debug.log` |
-| `logserver.[ch]` | Small HTTP server: log, crash dumps, Wi-Fi install, sound uploads |
+| `logserver.[ch]` | Small HTTP server: log; dev builds add crash dumps and Wi-Fi install |
 | **UI** | |
 | `ui.[ch]` | All screens, drawing primitives, effects, easter eggs |
 | `ui_theme.[ch]` | Theme presets, accents, HSV helper, accent cycling |
@@ -172,8 +172,8 @@ first one secretly worked, a repeat would skip twice or fail.
 **Abort.** `net_abort_all()` sets a flag that every wait loop checks, every
 250 ms. On quit, the worker is told to stop and joined (5 s limit). If it
 somehow doesn't stop, `main()` **skips `socExit()`**. Removing the socket
-service under a live worker caused the 1.0 crash: a NULL dereference inside
-`close()`.
+service under a live worker caused an early pre-release crash: a NULL
+dereference inside `close()`.
 
 **Friendly errors.** `report()` turns UPnP fault codes into plain messages:
 
@@ -399,7 +399,7 @@ sdmc:/3ds/sonnis/
   settings.ini    rooms, IPs, behaviour, look, vinyl, ozzy, party mode
   history.txt     "Recently Played" (started from this 2DS, max 15)
   debug.log       network log (also served over Wi-Fi)
-  sounds/*.wav    Ozzy sound bites
+  sounds/*.wav    Ozzy sound bites (SOUND=1 builds only)
 sdmc:/3ds/dspfirm.cdc        DSP firmware (needed for sound)
 sdmc:/luma/dumps/arm11/      crash dumps (readable via the log server, dev builds)
 ```
