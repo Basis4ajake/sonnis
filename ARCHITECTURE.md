@@ -409,6 +409,6 @@ sdmc:/luma/dumps/arm11/      crash dumps (readable via the log server, dev build
 1. With a dev build, open START → Network log on the 2DS, then
    `curl http://<2ds-ip>:8080/dumps` and
    `curl -O http://<2ds-ip>:8080/dump/<name>`.
-2. Keep each build's `sonnis.elf` (the `crash/` folder holds one per sent
-   build). Decode the dump's PC and LR with
-   `arm-none-eabi-addr2line -e sonnis.elf -f -i <addr>`.
+2. Keep each build's `sonnis.elf` (or `sonnis-dev.elf`) somewhere outside the
+   repo; a dump can only be decoded with the exact ELF that crashed. Decode
+   the dump's PC and LR with `arm-none-eabi-addr2line -e sonnis.elf -f -i <addr>`.
