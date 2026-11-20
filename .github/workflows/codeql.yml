@@ -1,0 +1,44 @@
+name: CodeQL
+
+# Static security analysis of the C code (buffer overflows, format strings,
+# integer overflows, untrusted network data reaching dangerous calls...).
+# Results appear under the repo's Security tab -> Code scanning.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '23 6 * * 1' # weekly, so newly added CodeQL checks run too
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write # upload results to code scanning
+    # Same pinned toolchain as build.yml.
+    container: devkitpro/devkitarm@sha256:116afba8df8453961de2936ffab20dd441edf4d682856c1ec8b0e53d7ed0bbf5
+    steps:
+      - uses: actions/checkout@v4
+
+      # Pinned to the v4.39.3 release commit.
+      - uses: github/codeql-action/init@33d7b85da1a04171e211befe2c739303b9a4c066
+        with:
+          languages: c-cpp
+          build-mode: manual
+          queries: security-extended
+
+      # CodeQL watches these compiles. The release build plus a DEV=1 SOUND=1
+      # build covers every line, including the compile-time-gated code.
+      - name: Build (release, then dev with sound)
+        run: |
+          make
+          make DEV=1 SOUND=1
+
+      - uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066
+        with:
+          category: /language:c-cpp
