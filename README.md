@@ -78,6 +78,11 @@ Sonnis is a hobby project and is not affiliated with or endorsed by Sonos, Inc.
 4. Make sure the 2DS is connected to the **same Wi-Fi network** as your Sonos
    system (System Settings → Internet Settings).
 
+**Prefer a Home Menu icon?** Download `sonnis.cia` from the same release
+instead and install it with [FBI](https://github.com/lifehackerhansol/FBI)
+(or another CIA installer). It's the same app; settings are shared with the
+`.3dsx` version. Uninstall it from System Settings → Data Management.
+
 Settings are saved to `sdmc:/3ds/sonnis/settings.ini` (plain text, safe to edit
 on a PC) and history to `sdmc:/3ds/sonnis/history.txt`.
 

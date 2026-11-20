@@ -5,3 +5,5 @@ build/
 crash/
 build-dev/
 dist/
+tools/bin/
+*.cia

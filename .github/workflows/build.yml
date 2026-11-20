@@ -2,7 +2,7 @@ name: Build
 
 # Every push and pull request: build release + dev to catch breakage.
 # Tag vX.Y.Z: additionally create a *draft* GitHub Release with the zip and
-# .3dsx attached, so release notes can be reviewed before publishing.
+# .3dsx/.cia attached, so release notes can be reviewed before publishing.
 on:
   push:
     branches: [main]
@@ -41,6 +41,12 @@ jobs:
             exit 1
           fi
 
+      - name: Fetch CIA tools (pinned releases, SHA-256 verified)
+        run: sh tools/get_ctr_tools.sh
+
+      - name: CIA build
+        run: make cia
+
       - name: Dev build compiles (never published)
         run: make DEV=1
 
@@ -50,6 +56,7 @@ jobs:
           path: |
             dist/*.zip
             sonnis.3dsx
+            sonnis.cia
           if-no-files-found: error
 
   release:
@@ -68,7 +75,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" out/dist/*.zip out/sonnis.3dsx \
+          gh release create "$GITHUB_REF_NAME" out/dist/*.zip out/sonnis.3dsx out/sonnis.cia \
             --repo "$GITHUB_REPOSITORY" \
             --title "Sonnis $GITHUB_REF_NAME" \
             --generate-notes \
