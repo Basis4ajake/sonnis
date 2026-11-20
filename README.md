@@ -17,7 +17,7 @@ has the controls.
 | Personalize | 8 theme presets (incl. animated Deadhead tie-dye), 8 accent colors, per-color hex overrides, clock format, volume step, square or spinning-vinyl album art |
 | Song effects | Dual-screen animated scenes that follow the artist: Grateful Dead family → tie-dye, Disco Biscuits → space disco lasers, Ozzy/Sabbath → Halloween storm |
 | Fun | Ozzy "Prince of Darkness" vocabulary (explicit), hidden Party mode, more easter eggs |
-| Tools | Network diagnostics, network log, crash dumps and Wi-Fi install via a built-in web server |
+| Tools | Network diagnostics, and a network log you can also read from a PC browser |
 | Persistence | Last room, pinned rooms, manual IPs, look & behaviour, play history |
 
 ### What needs the cloud (and why it's marked in the app)

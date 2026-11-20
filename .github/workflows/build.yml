@@ -70,6 +70,10 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: release-notes
+
       - uses: actions/download-artifact@v4
         with:
           name: sonnis-release
@@ -79,8 +83,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # Hand-written notes in release-notes/<tag>.md if present, else generated.
+          notes="release-notes/$GITHUB_REF_NAME.md"
+          if [ -f "$notes" ]; then set -- --notes-file "$notes"; else set -- --generate-notes; fi
           gh release create "$GITHUB_REF_NAME" out/dist/*.zip out/sonnis.3dsx out/sonnis.cia \
             --repo "$GITHUB_REPOSITORY" \
             --title "Sonnis $GITHUB_REF_NAME" \
-            --generate-notes \
-            --draft
+            --draft "$@"
