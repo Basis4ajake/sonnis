@@ -1497,7 +1497,10 @@ static void draw_rooms(const input_t *in, ctrl_state_t *st)
 
 enum {
 	SET_THEME, SET_ACCENT, SET_VOLSTEP, SET_GROUPVOL, SET_ART, SET_CLOCK, SET_VOCAB, SET_PARTY,
-	SET_SOUNDS, SET_ADD_IP, SET_CLEAR_IPS, SET_REDISCOVER, SET_DIAG, SET_NETLOG, SET_ABOUT, SET_QUIT, SET_COUNT
+#ifdef SONNIS_SOUND
+	SET_SOUNDS,
+#endif
+	SET_ADD_IP, SET_CLEAR_IPS, SET_REDISCOVER, SET_DIAG, SET_NETLOG, SET_ABOUT, SET_QUIT, SET_COUNT
 };
 
 static void settings_row(int i, row_t *r, void *ctx)
@@ -1533,11 +1536,13 @@ static void settings_row(int i, row_t *r, void *ctx)
 	}
 	case SET_CLOCK: str_copy(r->title, "Clock", sizeof r->title);
 		str_copy(r->right, s->clock_24h ? "24-hour" : "12-hour", sizeof r->right); break;
+#ifdef SONNIS_SOUND
 	case SET_SOUNDS: str_copy(r->title, "Ozzy sound bites", sizeof r->title);
 		if (!sound_available()) str_copy(r->right, "No DSP firmware", sizeof r->right);
 		else snprintf(r->right, sizeof r->right, "%d clip%s", sound_clip_count(), sound_clip_count() == 1 ? "" : "s");
 		str_copy(r->subtitle, "WAVs in sdmc:/3ds/sonnis/sounds", sizeof r->subtitle);
 		break;
+#endif
 	case SET_ADD_IP: str_copy(r->title, "Add speaker IP...", sizeof r->title);
 		str_copy(r->subtitle, "For networks that block discovery", sizeof r->subtitle); break;
 	case SET_CLEAR_IPS: str_copy(r->title, "Clear saved speaker IPs", sizeof r->title);
@@ -1637,6 +1642,7 @@ static void settings_change(int row, int dir) // dir: -1, +1, or 0 = activate
 		return;
 	}
 	case SET_CLOCK: s->clock_24h = !s->clock_24h; break;
+#ifdef SONNIS_SOUND
 	case SET_SOUNDS:
 		if (dir) return;
 		sound_rescan();
@@ -1645,6 +1651,7 @@ static void settings_change(int row, int dir) // dir: -1, +1, or 0 = activate
 		else if (!sound_clip_count()) ctrl_toast(false, "No .wav files in sdmc:/3ds/sonnis/sounds yet");
 		else if (!sound_play("start") && !sound_play("random")) ctrl_toast(false, "Found clips, but no start.wav or random*.wav");
 		return;
+#endif
 	case SET_ADD_IP: if (!dir) ask_speaker_ip(); return;
 	case SET_CLEAR_IPS: if (!dir) { s->manual_count = 0; ctrl_toast(false, "Cleared saved IPs"); } break;
 	case SET_REDISCOVER: if (!dir) ctrl_send(CMD_DISCOVER, 0, 0, NULL); return;

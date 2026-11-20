@@ -16,7 +16,7 @@ has the controls.
 | Rooms | Room list with availability, select room, join/leave groups (leaders hand off cleanly), pin favorite rooms |
 | Personalize | 8 theme presets (incl. animated Deadhead tie-dye), 8 accent colors, per-color hex overrides, clock format, volume step, square or spinning-vinyl album art |
 | Song effects | Dual-screen animated scenes that follow the artist: Grateful Dead family → tie-dye, Disco Biscuits → space disco lasers, Ozzy/Sabbath → Halloween storm |
-| Fun | Ozzy "Prince of Darkness" vocabulary (explicit), sound bites, hidden Party mode, more easter eggs |
+| Fun | Ozzy "Prince of Darkness" vocabulary (explicit), hidden Party mode, more easter eggs |
 | Tools | Network diagnostics, network log, crash dumps and Wi-Fi install via a built-in web server |
 | Persistence | Last room, pinned rooms, manual IPs, look & behaviour, play history |
 
@@ -102,7 +102,7 @@ docker run --rm -u $(id -u):$(id -g) -v "$PWD":/src -w /src devkitpro/devkitarm 
 The output is `sonnis.3dsx` (with an embedded SMDH icon/title). `make clean` removes build files.
 
 **Dev builds.** `make DEV=1` builds `sonnis-dev.3dsx` (version `1.0.0-dev`, in
-`build-dev/`). It adds Wi-Fi uploads (`PUT /install`, `PUT /sounds/<name>.wav`)
+`build-dev/`). It adds Wi-Fi uploads (`PUT /install`)
 and Luma crash-dump downloads (`/dumps`) to the Network log screen's web server.
 These have no authentication, so anyone on the same Wi-Fi could replace the app
 while that screen is open. Release builds leave them out and only serve the
@@ -120,7 +120,6 @@ the SD card.
 
   ```sh
   curl --limit-rate 60k -T sonnis-dev.3dsx http://<2ds-ip>:8080/install
-  curl --limit-rate 60k -T eleven.wav      http://<2ds-ip>:8080/sounds/eleven.wav
   ```
 
   Keep the rate limit: at full Wi-Fi speed the 2DS's SD card writes fall
@@ -163,12 +162,6 @@ color.accent = #FF8800
   hidden row that forces any effect on every song, or turns song effects off.
 - **Vocabulary → Prince of Darkness:** explicit, Ozzy-flavoured wording
   throughout. Every room becomes "Fucking …" or "Bloody …".
-- **Ozzy sound bites:** WAVs in `sdmc:/3ds/sonnis/sounds/` play on events, in
-  Ozzy mode only, and need `sdmc:/3ds/dspfirm.cdc` (run DSP1 once). The files
-  are `start`, `eleven`, `bears`, `sharon` (errors), `lastsong`, `quit`, and
-  `random1`, `random2`, … (song changes). Use 8/16-bit PCM;
-  `ffmpeg -i in.mp3 -ac 1 -ar 22050 -sample_fmt s16 eleven.wav` converts
-  anything else.
 - **Vinyl:** Settings → Album artwork → Vinyl makes the album art spin as a
   33⅓ record. Hold the circle pad to scratch through the song.
 - Press **R at volume 100**: it goes to eleven.
@@ -187,7 +180,7 @@ it's off by default.
 
 See **[ARCHITECTURE.md](ARCHITECTURE.md)** for the full write-up: threads, the
 shared snapshot, discovery, the HTTP/SOAP quirks of the 2DS socket layer,
-playback routing, grouping, drawing, effects, vinyl rotation, sound and the
+playback routing, grouping, drawing, effects, vinyl rotation and the
 log server.
 
 In short, the UI thread draws at 60 fps and never touches the network. A

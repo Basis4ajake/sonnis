@@ -70,6 +70,12 @@ CFLAGS	+=	$(INCLUDE) -D__3DS__ -DAPP_VERSION=\"$(VERSION)\"
 ifeq ($(DEV),1)
 CFLAGS	+=	-DSONNIS_DEV
 endif
+# make SOUND=1: Ozzy sound bites (needs DSP firmware on the SD). Off for now,
+# so public builds don't include or mention the feature. Run `make clean`
+# when toggling it: object files don't track flags.
+ifeq ($(SOUND),1)
+CFLAGS	+=	-DSONNIS_SOUND
+endif
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
 

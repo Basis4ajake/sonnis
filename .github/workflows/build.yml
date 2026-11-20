@@ -34,10 +34,14 @@ jobs:
       - name: Release build and zip
         run: make dist
 
-      - name: Release build has no dev-only endpoints
+      - name: Release build has no dev-only endpoints or sound code
         run: |
           if grep -aqE 'luma/dumps|/install' sonnis.3dsx; then
             echo "::error::dev-only upload/dump code found in the release build"
+            exit 1
+          fi
+          if grep -aq 'sonnis/sounds' sonnis.3dsx; then
+            echo "::error::sound-bite code found in the release build (should need SOUND=1)"
             exit 1
           fi
 

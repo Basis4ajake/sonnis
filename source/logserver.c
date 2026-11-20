@@ -95,9 +95,9 @@ static bool safe_name(const char *n)
 // so a dropped upload never leaves a half-written app or clip behind.
 static void receive_upload(int c, const char *dest, long len, const char *early, int early_n)
 {
-	char msg[160];
+	char msg[400]; // fits a full 300-byte dest path plus the message
 	if (len <= 0 || len > MAX_UPLOAD) { respond_text(c, "need Content-Length (max 8 MB)\n"); return; }
-	char part[300];
+	char part[310]; // dest (< 300) + ".part"
 	snprintf(part, sizeof part, "%s.part", dest);
 	FILE *f = fopen(part, "wb");
 	if (!f) { respond_text(c, "cannot write to SD card\n"); return; }
@@ -175,10 +175,12 @@ static void serve(int c)
 		if (!strcmp(path, "/install")) {
 			snprintf(dest, sizeof dest, "%s", INSTALL_PATH);
 			receive_upload(c, dest, len, body, early);
+#ifdef SONNIS_SOUND
 		} else if (!strncmp(path, "/sounds/", 8) && safe_name(path + 8) && strlen(path) > 12 &&
 		           !strcasecmp(path + strlen(path) - 4, ".wav")) {
 			snprintf(dest, sizeof dest, SOUND_DIR "/%s", path + 8);
 			receive_upload(c, dest, len, body, early);
+#endif
 		} else {
 			respond_text(c, "PUT /install or /sounds/<name>.wav\n");
 		}

@@ -145,15 +145,16 @@ AccessControlInfo:
   # Service List
   # Maximum 34 services (32 if firmware is prior to 9.6.0)
   # Only what Sonnis uses: graphics, input, SD card, sockets + Wi-Fi status,
-  # DSP audio (ndsp), APT (home menu, sleep, swkbd applet, system font),
+  # APT (home menu, sleep, swkbd applet, system font),
   # cfg (region/language for the system font), ptm (power/sleep state).
   # The template's camera, mic, IR, friends, news, title install (am:net),
   # HTTP/SSL and local wireless services are deliberately not requested.
+  # dsp::DSP is left out too: sound bites are off (make SOUND=1); add it back
+  # if they're enabled in a CIA build.
   ServiceAccessControl:
    - APT:U
    - ac:u
    - cfg:u
-   - dsp::DSP
    - fs:USER
    - gsp::Gpu
    - gsp::Lcd

@@ -57,7 +57,7 @@ rule:
 | `ui_font.[ch]` | Text measure and draw (system font, pixel-snapped; optional bcfnt) |
 | `input.[ch]` | Key snapshot, auto-repeat, tap vs. drag detection |
 | `ozzy.[ch]` | "Prince of Darkness" vocabulary filter applied to all UI text |
-| `sound.[ch]` | WAV loader and DSP playback for Ozzy sound bites |
+| `sound.[ch]` | WAV loader and DSP playback for Ozzy sound bites (off by default, `make SOUND=1`) |
 | `settings.[ch]` | `settings.ini` and `history.txt` persistence |
 
 ## Threads and shared state
@@ -331,6 +331,12 @@ scrubs: the record spins 8× faster, and letting go sends `Seek`.
 
 ## Sound (`sound.c`)
 
+**Off by default.** Only `make SOUND=1` builds it (defines `SONNIS_SOUND`).
+Otherwise `sound.h` replaces every function with an empty inline stub, so call
+sites need no `#ifdef`s, the Settings row disappears, `PUT /sounds` is
+rejected, and the CIA doesn't request the DSP service. Run `make clean` when
+toggling.
+
 `ndspInit()` needs the DSP firmware at `sdmc:/3ds/dspfirm.cdc`, made once by
 the DSP1 homebrew. Without it, sound is off and every call does nothing.
 
@@ -358,7 +364,7 @@ START → Network log is open**:
 | `GET /dumps` | dev | Lists Luma3DS ARM11 crash dumps |
 | `GET /dump/<name>` | dev | Downloads one dump (name checked: no paths, no `..`) |
 | `PUT /install` | dev | Saves the body as `sdmc:/3ds/sonnis/sonnis.3dsx` (keeps a netloaded build) |
-| `PUT /sounds/<name>.wav` | dev | Adds a sound bite |
+| `PUT /sounds/<name>.wav` | dev + `SOUND=1` | Adds a sound bite |
 
 "dev" endpoints exist only in `make DEV=1` builds (`SONNIS_DEV` defined). They
 have no authentication, so release builds compile them out entirely and answer
