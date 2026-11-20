@@ -1,4 +1,5 @@
 #include "sound.h"
+#ifdef SONNIS_SOUND // see sound.h: off by default
 #include "ozzy.h"
 #include "netlog.h"
 
@@ -147,3 +148,4 @@ bool sound_play(const char *event)
 	}
 	return play_file(path);
 }
+#endif // SONNIS_SOUND

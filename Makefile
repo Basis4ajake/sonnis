@@ -70,6 +70,12 @@ CFLAGS	+=	$(INCLUDE) -D__3DS__ -DAPP_VERSION=\"$(VERSION)\"
 ifeq ($(DEV),1)
 CFLAGS	+=	-DSONNIS_DEV
 endif
+# make SOUND=1: Ozzy sound bites (needs DSP firmware on the SD). Off for now,
+# so public builds don't include or mention the feature. Run `make clean`
+# when toggling it: object files don't track flags.
+ifeq ($(SOUND),1)
+CFLAGS	+=	-DSONNIS_SOUND
+endif
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
 
@@ -166,7 +172,7 @@ ifneq ($(ROMFS),)
 	export _3DSXFLAGS += --romfs=$(CURDIR)/$(ROMFS)
 endif
 
-.PHONY: all clean dist print-version
+.PHONY: all clean cia dist print-version
 
 #---------------------------------------------------------------------------------
 all:
@@ -176,7 +182,28 @@ all:
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr build build-dev sonnis.3dsx sonnis.smdh sonnis.elf sonnis-dev.3dsx sonnis-dev.smdh sonnis-dev.elf dist
+	@rm -fr build build-dev sonnis.3dsx sonnis.smdh sonnis.elf sonnis-dev.3dsx sonnis-dev.smdh sonnis-dev.elf sonnis.cia dist
+
+#---------------------------------------------------------------------------------
+# cia: installable title with a Home Menu icon and banner (release build only).
+# Needs makerom + bannertool in tools/bin (sh tools/get_ctr_tools.sh). Reuses
+# the SMDH from the 3dsx build as the icon; banner art lives in meta/.
+CTRTOOLS	:=	$(CURDIR)/tools/bin
+VERSION_PARTS	:=	$(subst ., ,$(firstword $(subst -, ,$(VERSION))))
+
+cia:
+ifeq ($(DEV),1)
+	$(error cia packages the release build; run it without DEV=1)
+endif
+	@test -x $(CTRTOOLS)/makerom -a -x $(CTRTOOLS)/bannertool || \
+		{ echo "missing makerom/bannertool: run sh tools/get_ctr_tools.sh" >&2; exit 1; }
+	@$(MAKE) --no-print-directory all
+	@$(CTRTOOLS)/bannertool makebanner -i meta/banner.png -a meta/banner.wav -o $(BUILD)/banner.bnr >/dev/null
+	@$(CTRTOOLS)/makerom -f cia -o $(TARGET).cia -target t -exefslogo \
+		-elf $(TARGET).elf -rsf meta/sonnis.rsf -icon $(TARGET).smdh -banner $(BUILD)/banner.bnr \
+		-major $(word 1,$(VERSION_PARTS)) -minor $(word 2,$(VERSION_PARTS)) -micro $(word 3,$(VERSION_PARTS)) \
+		-DVERSION_MAJOR=$(word 1,$(VERSION_PARTS))
+	@echo built ... $(TARGET).cia
 
 #---------------------------------------------------------------------------------
 # dist: release zip laid out like the SD card, so users can extract it to the
