@@ -45,7 +45,7 @@ jobs:
             exit 1
           fi
 
-      - name: Fetch CIA tools (pinned releases, SHA-256 verified)
+      - name: Build CIA tools from source (reviewed commits, hash-verified)
         run: sh tools/get_ctr_tools.sh
 
       - name: CIA build
