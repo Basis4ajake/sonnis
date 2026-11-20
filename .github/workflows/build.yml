@@ -1,0 +1,75 @@
+name: Build
+
+# Every push and pull request: build release + dev to catch breakage.
+# Tag vX.Y.Z: additionally create a *draft* GitHub Release with the zip and
+# .3dsx attached, so release notes can be reviewed before publishing.
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # Pinned by digest: the same devkitARM toolchain the app is tested with.
+    # Bump deliberately (docker pull devkitpro/devkitarm, retest on hardware).
+    container: devkitpro/devkitarm@sha256:116afba8df8453961de2936ffab20dd441edf4d682856c1ec8b0e53d7ed0bbf5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tag matches Makefile VERSION
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          v=$(make -s print-version)
+          if [ "v$v" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match Makefile VERSION $v"
+            exit 1
+          fi
+
+      - name: Release build and zip
+        run: make dist
+
+      - name: Release build has no dev-only endpoints
+        run: |
+          if grep -aqE 'luma/dumps|/install' sonnis.3dsx; then
+            echo "::error::dev-only upload/dump code found in the release build"
+            exit 1
+          fi
+
+      - name: Dev build compiles (never published)
+        run: make DEV=1
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sonnis-release
+          path: |
+            dist/*.zip
+            sonnis.3dsx
+          if-no-files-found: error
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: sonnis-release
+          path: out
+
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" out/dist/*.zip out/sonnis.3dsx \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Sonnis $GITHUB_REF_NAME" \
+            --generate-notes \
+            --draft

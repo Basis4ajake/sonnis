@@ -166,7 +166,7 @@ ifneq ($(ROMFS),)
 	export _3DSXFLAGS += --romfs=$(CURDIR)/$(ROMFS)
 endif
 
-.PHONY: all clean
+.PHONY: all clean dist print-version
 
 #---------------------------------------------------------------------------------
 all:
@@ -176,7 +176,25 @@ all:
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr build build-dev sonnis.3dsx sonnis.smdh sonnis.elf sonnis-dev.3dsx sonnis-dev.smdh sonnis-dev.elf
+	@rm -fr build build-dev sonnis.3dsx sonnis.smdh sonnis.elf sonnis-dev.3dsx sonnis-dev.smdh sonnis-dev.elf dist
+
+#---------------------------------------------------------------------------------
+# dist: release zip laid out like the SD card, so users can extract it to the
+# card's root. Release builds only: a dev build must never be published.
+dist:
+ifeq ($(DEV),1)
+	$(error dist packages the release build; run it without DEV=1)
+endif
+	@$(MAKE) --no-print-directory all
+	@rm -rf dist && mkdir -p dist/stage/3ds/sonnis
+	@cp $(TARGET).3dsx dist/stage/3ds/sonnis/
+	@cp README.md LICENSE dist/stage/
+	@cd dist/stage && zip -qr ../sonnis-$(VERSION).zip .
+	@rm -rf dist/stage
+	@echo built ... dist/sonnis-$(VERSION).zip
+
+print-version:
+	@echo $(VERSION)
 
 
 #---------------------------------------------------------------------------------

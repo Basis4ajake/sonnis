@@ -4,3 +4,4 @@ build/
 *.elf
 crash/
 build-dev/
+dist/
