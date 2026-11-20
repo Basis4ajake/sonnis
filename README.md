@@ -65,12 +65,12 @@ on a PC) and history to `sdmc:/3ds/sonnis/history.txt`.
 - **Try a build without installing it:** open the Homebrew Launcher, press **Y**
   for the netloader, then run `3dslink -a <2ds-ip> sonnis.3dsx`. The build
   only runs until you exit.
-- **Keep a build:** in Sonnis, open **START → Network log**. While that screen
-  is open, the 2DS accepts uploads:
+- **Keep a build (dev builds only):** a dev build (`make DEV=1`, see
+  [Building](#building)) accepts uploads while **START → Network log** is open:
 
   ```sh
-  curl --limit-rate 60k -T sonnis.3dsx http://<2ds-ip>:8080/install
-  curl --limit-rate 60k -T eleven.wav  http://<2ds-ip>:8080/sounds/eleven.wav
+  curl --limit-rate 60k -T sonnis-dev.3dsx http://<2ds-ip>:8080/install
+  curl --limit-rate 60k -T eleven.wav      http://<2ds-ip>:8080/sounds/eleven.wav
   ```
 
   Keep the rate limit: at full Wi-Fi speed the 2DS's SD card writes fall
@@ -90,6 +90,15 @@ docker run --rm -u $(id -u):$(id -g) -v "$PWD":/src -w /src devkitpro/devkitarm 
 ```
 
 The output is `sonnis.3dsx` (with an embedded SMDH icon/title). `make clean` removes build files.
+
+**Dev builds.** `make DEV=1` builds `sonnis-dev.3dsx` (version `1.0.0-dev`, in
+`build-dev/`). It adds Wi-Fi uploads (`PUT /install`, `PUT /sounds/<name>.wav`)
+and Luma crash-dump downloads (`/dumps`) to the Network log screen's web server.
+These have no authentication, so anyone on the same Wi-Fi could replace the app
+while that screen is open. Release builds leave them out and only serve the
+read-only log. Use dev builds on your own device only. If you install a release
+build, uploads stop working until you load a dev build again with `3dslink` or
+the SD card.
 
 ## Personalizing
 
@@ -194,7 +203,7 @@ away and the next poll corrects it if the speaker disagrees.
 - **START → Network diagnostics** tests the connection to one speaker step by step.
 - **START → Network log** lists recent failures and retries ("retry → OK" means
   a hiccup Sonnis recovered from). While it's open, `http://<2ds-ip>:8080/`
-  serves the full log and `/dumps` lists crash dumps.
+  serves the full log (dev builds also list crash dumps at `/dumps`).
 
 ### "Living Room unreachable"
 - The speaker may be powered off, rebooting, or have a new IP. Sonnis retries

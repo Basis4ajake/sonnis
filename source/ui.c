@@ -1774,7 +1774,11 @@ static void draw_netlog_bottom(const input_t *in, ctrl_state_t *st)
 		         logserver_hits() == 1 ? "" : "s");
 		text(hits, BOT_W / 2.0f, 96, 12, C.muted, AL_CENTER, BOT_W - 40);
 		text(url, BOT_W / 2.0f, 116, 15, C.accent, AL_CENTER, BOT_W - 40);
+#ifdef SONNIS_DEV
+		text("Dev build: uploads on. Stops when you leave", BOT_W / 2.0f, 136, 11, C.muted, AL_CENTER, BOT_W - 40);
+#else
 		text("Stops when you leave this screen", BOT_W / 2.0f, 136, 11, C.muted, AL_CENTER, BOT_W - 40);
+#endif
 	} else {
 		text("Log sharing unavailable", BOT_W / 2.0f, 112, 13, C.muted, AL_CENTER, BOT_W - 40);
 	}

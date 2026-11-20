@@ -35,8 +35,10 @@ static void send_all(int fd, const char *p, size_t n)
 	}
 }
 
+#ifdef SONNIS_DEV
 #define DUMP_DIR "sdmc:/luma/dumps/arm11"
 #define MAX_FILE (4 * 1024 * 1024)
+#endif
 
 static void respond(int c, const char *type, const char *body, long size)
 {
@@ -67,6 +69,15 @@ static char *read_tail(const char *path, long max, long *out_size)
 	return buf;
 }
 
+// Waits up to ms for data and receives it. <= 0 on timeout/close.
+static int recv_wait(int c, char *buf, int cap, int ms)
+{
+	struct pollfd p = { .fd = c, .events = POLLIN };
+	if (poll(&p, 1, ms) <= 0) return 0;
+	return recv(c, buf, cap, 0);
+}
+
+#ifdef SONNIS_DEV
 // Only plain file names: no path separators or "..", so nothing outside
 // DUMP_DIR can be requested.
 static bool safe_name(const char *n)
@@ -79,14 +90,6 @@ static bool safe_name(const char *n)
 
 #define INSTALL_PATH "sdmc:/3ds/sonnis/sonnis.3dsx"
 #define MAX_UPLOAD (8 * 1024 * 1024)
-
-// Waits up to ms for data and receives it. <= 0 on timeout/close.
-static int recv_wait(int c, char *buf, int cap, int ms)
-{
-	struct pollfd p = { .fd = c, .events = POLLIN };
-	if (poll(&p, 1, ms) <= 0) return 0;
-	return recv(c, buf, cap, 0);
-}
 
 // PUT body -> file. Written to <dest>.part and renamed only when complete,
 // so a dropped upload never leaves a half-written app or clip behind.
@@ -137,6 +140,7 @@ static void receive_upload(int c, const char *dest, long len, const char *early,
 	snprintf(msg, sizeof msg, "saved %ld bytes to %s\n", got, dest);
 	respond_text(c, msg);
 }
+#endif // SONNIS_DEV
 
 static void serve(int c)
 {
@@ -157,6 +161,10 @@ static void serve(int c)
 	sscanf(req, "%7s %127s", method, path);
 
 	if (!strcmp(method, "PUT")) {
+#ifndef SONNIS_DEV
+		// Release builds never write to the SD card from the network.
+		respond_text(c, "not available in this build\n");
+#else
 		// PUT /install          -> the app itself (keeps the build on the SD card)
 		// PUT /sounds/<name>.wav -> an Ozzy sound bite
 		long len = -1;
@@ -174,9 +182,15 @@ static void serve(int c)
 		} else {
 			respond_text(c, "PUT /install or /sounds/<name>.wav\n");
 		}
+#endif
 		goto done;
 	}
 
+#ifndef SONNIS_DEV
+	if (!strncmp(path, "/dump", 5)) {
+		respond_text(c, "not available in this build\n");
+	} else
+#else
 	if (!strcmp(path, "/dumps")) {
 		// Newline-separated list of "name size".
 		char list[2048] = "";
@@ -205,7 +219,9 @@ static void serve(int c)
 		if (!body) { respond_text(c, "not found\n"); goto done; }
 		respond(c, "application/octet-stream", body, size);
 		free(body);
-	} else {
+	} else
+#endif
+	{
 		long size = 0;
 		char *body = read_tail(LOG_PATH, MAX_SEND, &size);
 		if (body) { respond(c, "text/plain; charset=utf-8", body, size); free(body); }

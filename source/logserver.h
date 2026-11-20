@@ -1,9 +1,12 @@
 // logserver: while the Network log screen is open, serves the debug log
 // read-only over HTTP on the LAN (http://<2ds-ip>:8080/) so it can be pulled
-// from a PC without removing the SD card. Also: GET /dumps lists Luma3DS
-// ARM11 crash dumps, GET /dump/<name> downloads one. PUT /install saves the
+// from a PC without removing the SD card. Runs on its own thread.
+//
+// Dev builds only (make DEV=1, defines SONNIS_DEV): GET /dumps lists Luma3DS
+// ARM11 crash dumps, GET /dump/<name> downloads one, PUT /install saves the
 // app to sdmc:/3ds/sonnis/sonnis.3dsx and PUT /sounds/<name>.wav adds a sound
-// bite (curl -T file http://<2ds-ip>:8080/install). Runs on its own thread.
+// bite (curl -T file http://<2ds-ip>:8080/install). These are unauthenticated,
+// so release builds compile them out and answer "not available in this build".
 #pragma once
 #include <stdbool.h>
 

@@ -31,8 +31,17 @@ include $(DEVKITARM)/3ds_rules
 #     - icon.png
 #     - <libctru folder>/default_icon.png
 #---------------------------------------------------------------------------------
+# make        -> release build (sonnis.3dsx): no Wi-Fi upload/crash-dump endpoints
+# make DEV=1  -> dev build (sonnis-dev.3dsx): adds PUT /install, /sounds, /dumps.
+# Separate TARGET and BUILD dirs so switching modes never reuses stale objects.
+DEV		?=	0
+ifeq ($(DEV),1)
+TARGET		:=	sonnis-dev
+BUILD		:=	build-dev
+else
 TARGET		:=	sonnis
 BUILD		:=	build
+endif
 SOURCES		:=	source source/third_party
 DATA		:=	data
 INCLUDES	:=	include
@@ -43,6 +52,10 @@ APP_TITLE	:=	Sonnis
 APP_DESCRIPTION	:=	Sonos remote for 2DS/3DS
 APP_AUTHOR	:=	Sonnis project
 VERSION		:=	1.0.0
+ifeq ($(DEV),1)
+APP_TITLE	:=	Sonnis (dev)
+VERSION		:=	$(VERSION)-dev
+endif
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -54,6 +67,9 @@ CFLAGS	:=	-g -Wall -Wextra -Wno-unused-parameter -O2 -std=gnu11 -mword-relocatio
 			$(ARCH)
 
 CFLAGS	+=	$(INCLUDE) -D__3DS__ -DAPP_VERSION=\"$(VERSION)\"
+ifeq ($(DEV),1)
+CFLAGS	+=	-DSONNIS_DEV
+endif
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
 
@@ -160,7 +176,7 @@ all:
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr $(BUILD) $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf
+	@rm -fr build build-dev sonnis.3dsx sonnis.smdh sonnis.elf sonnis-dev.3dsx sonnis-dev.smdh sonnis-dev.elf
 
 
 #---------------------------------------------------------------------------------

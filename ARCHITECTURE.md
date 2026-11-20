@@ -352,13 +352,17 @@ On quit, Sonnis waits up to 5 s for the goodbye clip to finish.
 The log server is a small HTTP server on its own thread, **running only while
 START → Network log is open**:
 
-| Request | Does |
-|---|---|
-| `GET /` | Last 128 KB of `debug.log` |
-| `GET /dumps` | Lists Luma3DS ARM11 crash dumps |
-| `GET /dump/<name>` | Downloads one dump (name checked: no paths, no `..`) |
-| `PUT /install` | Saves the body as `sdmc:/3ds/sonnis/sonnis.3dsx` (keeps a netloaded build) |
-| `PUT /sounds/<name>.wav` | Adds a sound bite |
+| Request | Build | Does |
+|---|---|---|
+| `GET /` | all | Last 128 KB of `debug.log` |
+| `GET /dumps` | dev | Lists Luma3DS ARM11 crash dumps |
+| `GET /dump/<name>` | dev | Downloads one dump (name checked: no paths, no `..`) |
+| `PUT /install` | dev | Saves the body as `sdmc:/3ds/sonnis/sonnis.3dsx` (keeps a netloaded build) |
+| `PUT /sounds/<name>.wav` | dev | Adds a sound bite |
+
+"dev" endpoints exist only in `make DEV=1` builds (`SONNIS_DEV` defined). They
+have no authentication, so release builds compile them out entirely and answer
+`not available in this build`; a settings toggle could be flipped back on.
 
 Uploads write to `<file>.part` and rename only when every byte has arrived,
 so a dropped transfer never leaves a broken app. A partial upload is deleted
@@ -391,12 +395,12 @@ sdmc:/3ds/sonnis/
   debug.log       network log (also served over Wi-Fi)
   sounds/*.wav    Ozzy sound bites
 sdmc:/3ds/dspfirm.cdc        DSP firmware (needed for sound)
-sdmc:/luma/dumps/arm11/      crash dumps (readable via the log server)
+sdmc:/luma/dumps/arm11/      crash dumps (readable via the log server, dev builds)
 ```
 
 ## Debugging a crash
 
-1. Open START → Network log on the 2DS, then
+1. With a dev build, open START → Network log on the 2DS, then
    `curl http://<2ds-ip>:8080/dumps` and
    `curl -O http://<2ds-ip>:8080/dump/<name>`.
 2. Keep each build's `sonnis.elf` (the `crash/` folder holds one per sent
