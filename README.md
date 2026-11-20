@@ -213,3 +213,8 @@ Radio stations and line-in/TV sources have no queue, so Sonos rejects play-mode 
 
 ### Can't play a Spotify / Apple Music item
 Only items saved as **Sonos Favorites** or in the queue can be played locally. Add them to Favorites in the Sonos app first.
+
+## License
+
+MIT, see [LICENSE](LICENSE). Bundles [stb_image](https://github.com/nothings/stb)
+(public domain / MIT).
